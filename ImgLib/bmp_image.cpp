@@ -9,9 +9,29 @@ using namespace std;
 
 namespace img_lib {
 
+// PACKED_STRUCT_BEGIN BitmapFileHeader {
+//     // поля заголовка Bitmap File Header
+// }
+// PACKED_STRUCT_END
+
+// PACKED_STRUCT_BEGIN BitmapInfoHeader {
+//     // поля заголовка Bitmap Info Header
+// }
+// PACKED_STRUCT_END
+
+// // функция вычисления отступа по ширине
+// static int GetBMPStride(int w) {
+//     return 4 * ((w * 3 + 3) / 4);
+// }
+
+// // напишите эту функцию
+// bool SaveBMP(const Path& file, const Image& image);
+
+// // напишите эту функцию
+// Image LoadBMP(const Path& file);
 
 // Структура заголовка BMP-файла (14 байт)
-PACKED_STRUCT_BEGIN BitmapFileHeader {  // Макросы для отключения padding у структур
+PACKED_STRUCT_BEGIN BitmapFileHeader {
     uint16_t bfType = 0x4D42;           // 2 байта: сигнатура 'BM' для BMP
     uint32_t bfSize = 0;                // 4 байта: полный размер файла в байтах
     uint32_t bfReserved = 0;            // 4 байта: зарезервировано, должно быть 0
@@ -20,7 +40,7 @@ PACKED_STRUCT_BEGIN BitmapFileHeader {  // Макросы для отключе�
 PACKED_STRUCT_END
 
 // Структура информационного заголовка BMP (40 байт)
-PACKED_STRUCT_BEGIN BitmapInfoHeader {  // Макросы для отключения padding у структур
+PACKED_STRUCT_BEGIN BitmapInfoHeader {
     uint32_t biSize = 40;               // Размер этой структуры (40 байт)
     int32_t  biWidth = 0;               // Ширина изображения в пикселях
     int32_t  biHeight = 0;              // Высота изображения (если > 0 — снизу вверх)
@@ -36,8 +56,10 @@ PACKED_STRUCT_BEGIN BitmapInfoHeader {  // Макросы для отключе�
 PACKED_STRUCT_END
 
 // Вычисление длины строки в байтах с учетом выравнивания до 4 байт (BMP-требование)
-static int GetBMPStride(int w) {
-    return 4 * ((w * 3 + 3) / 4); // каждый пиксель 3 байта (RGB), +3 округляет вверх до кратного 4
+static int GetBMPStride(int w) { // w - ширина изображения
+    static const int size_of_pixel = 3; // размер пикселя в байтах
+    static const int padding = 4; // величина выравнивания 
+    return padding * ((w * size_of_pixel + 3) / 4); // каждый пиксель 3 байта (BGR), +3 округляет вверх до кратного 4
 }
 
 // Сохраняет изображение в формате BMP (24 бита, без сжатия)
@@ -84,7 +106,16 @@ Image LoadBMP(const Path& file) {
     BitmapInfoHeader info_header;
 
     in.read(reinterpret_cast<char*>(&file_header), sizeof(file_header)); // читаем заголовки
+    if (!in) {
+        // Произошла ошибка при чтении заголовка
+        return {};
+    }
+
     in.read(reinterpret_cast<char*>(&info_header), sizeof(info_header));
+    if (!in) {
+        // Произошла ошибка при чтении заголовка
+        return {};
+    }
 
     // проверка соответствия формату BMP 24-bit
     if (file_header.bfType != 0x4D42 ||
