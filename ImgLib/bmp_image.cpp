@@ -9,27 +9,6 @@ using namespace std;
 
 namespace img_lib {
 
-// PACKED_STRUCT_BEGIN BitmapFileHeader {
-//     // поля заголовка Bitmap File Header
-// }
-// PACKED_STRUCT_END
-
-// PACKED_STRUCT_BEGIN BitmapInfoHeader {
-//     // поля заголовка Bitmap Info Header
-// }
-// PACKED_STRUCT_END
-
-// // функция вычисления отступа по ширине
-// static int GetBMPStride(int w) {
-//     return 4 * ((w * 3 + 3) / 4);
-// }
-
-// // напишите эту функцию
-// bool SaveBMP(const Path& file, const Image& image);
-
-// // напишите эту функцию
-// Image LoadBMP(const Path& file);
-
 // Структура заголовка BMP-файла (14 байт)
 PACKED_STRUCT_BEGIN BitmapFileHeader {
     uint16_t bfType = 0x4D42;           // 2 байта: сигнатура 'BM' для BMP
